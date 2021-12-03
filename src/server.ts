@@ -1,5 +1,4 @@
 import app from "./app";
-
 /**
  * Start Express server.
  */

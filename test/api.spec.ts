@@ -1,9 +1,56 @@
 import request from "supertest";
-
 import app from "../src/app";
+import pool from "../src/database";
 
-describe("GET /api", () => {
-  it("should return 200 OK", () => {
-    return request(app).get("/api").expect(200);
+describe("GET /movies", () => {
+  it("should return 200", () => {
+    return request(app).get("/movies").expect(200);
   });
+
+  it("The Response is a Array ", () => {
+    return request(app)
+      .get("/movies")
+      .expect((res) => expect(res.body).toBeInstanceOf(Array));
+  });
+});
+
+describe("GET /movie/:id", () => {
+  it("should return 200", () => {
+    return request(app).get("/movie/1").expect(200);
+  });
+
+  it("The Response not is empty ", () => {
+    return request(app)
+      .get("/movie/1")
+      .expect((res) => expect(res.body).not.toEqual([]));
+  });
+});
+
+describe("GET /actors", () => {
+  it("should return 200", () => {
+    return request(app).get("/actors").expect(200);
+  });
+
+  it("the response is a Array", () => {
+    return request(app)
+      .get("/actors")
+      .expect((res) => expect(res.body).toBeInstanceOf(Array));
+  });
+});
+
+describe("GET /actor/:id", () => {
+  it("should return 200", () => {
+    return request(app).get("/actor/1").expect(200);
+  });
+
+  it("The response not is empty", () => {
+    return request(app)
+      .get("/actor/1")
+      .expect((res) => expect(res.body).not.toEqual([]));
+  });
+});
+
+afterAll((done) => {
+  pool.end();
+  done();
 });
