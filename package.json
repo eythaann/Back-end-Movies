@@ -7,7 +7,8 @@
     "start": "node ./dist/src/server.js",
     "dev": "ts-node-dev ./src/server.ts",
     "build": "tsc",
-    "test": "jest --verbose"
+    "test": "jest --verbose",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,7 @@
     "@types/mysql": "^2.15.19",
     "@types/node": "^16.11.11",
     "@types/supertest": "^2.0.11",
+    "husky": "^7.0.4",
     "jest": "^27.4.3",
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.7",

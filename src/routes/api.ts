@@ -13,7 +13,9 @@ export const loadApiEndpoints = (app: Application): void => {
     const movie = req.params.id;
     pool.query(`SELECT * FROM movies WHERE id=${movie}`, (err, result) => {
       if (err) throw err;
-      return res.status(200).json(result);
+      return result.length === 0
+        ? res.status(404).json({ error: "Not Exist" })
+        : res.status(200).json(result);
     });
   });
 
@@ -28,7 +30,9 @@ export const loadApiEndpoints = (app: Application): void => {
     const actor = req.params.id;
     pool.query(`SELECT * FROM actors WHERE id=${actor}`, (err, result) => {
       if (err) throw err;
-      return res.status(200).json(result);
+      return result.length === 0
+        ? res.status(404).json({ error: "Not Exist" })
+        : res.status(200).json(result);
     });
   });
 };

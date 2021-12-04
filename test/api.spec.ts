@@ -19,10 +19,16 @@ describe("GET /movie/:id", () => {
     return request(app).get("/movie/1").expect(200);
   });
 
-  it("The Response not is empty ", () => {
+  it("should be a Object ", () => {
     return request(app)
       .get("/movie/1")
-      .expect((res) => expect(res.body).not.toEqual([]));
+      .expect((res) => expect(res.body).toBeInstanceOf(Object));
+  });
+
+  it("If not exist return Error", () => {
+    return request(app)
+      .get("/movie/564861512")
+      .expect((res) => expect(res.body).toEqual({ error: "Not Exist" }));
   });
 });
 
@@ -43,10 +49,16 @@ describe("GET /actor/:id", () => {
     return request(app).get("/actor/1").expect(200);
   });
 
-  it("The response not is empty", () => {
+  it("should be a Object", () => {
     return request(app)
       .get("/actor/1")
-      .expect((res) => expect(res.body).not.toEqual([]));
+      .expect((res) => expect(res.body).toBeInstanceOf(Object));
+  });
+
+  it("If not exist return Error", () => {
+    return request(app)
+      .get("/actor/564861512")
+      .expect((res) => expect(res.body).toEqual({ error: "Not Exist" }));
   });
 });
 
