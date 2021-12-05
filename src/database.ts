@@ -1,7 +1,8 @@
-import { createPool } from "mysql";
-import { config } from "./config/database";
+import { createPool, Pool } from "mysql";
+import { dev, prod } from "./config/database";
 
-const pool = createPool(config);
+const env = process.env.NODE_ENV || "development";
+const pool = env === "production" ? createPool(prod) : createPool(dev);
 
 pool.getConnection((err, connection) => {
   if (err) {
@@ -21,7 +22,7 @@ pool.getConnection((err, connection) => {
 
   if (connection) {
     connection.release();
-    console.log("Database is Connected");
+    console.log(`Database is Connected on ${env}`);
   }
   return;
 });

@@ -3,5 +3,5 @@ export default interface movie {
   description: string;
   trailerLink: string;
   premiere: string;
-  img: string;
+  img: string | undefined;
 }

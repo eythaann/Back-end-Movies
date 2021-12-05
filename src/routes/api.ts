@@ -1,7 +1,8 @@
 import { Application, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
 import multer from "multer";
-import pool from "../database";
+import { Pool } from "mysql";
+
 import movie from "../interfaces/movie.interface";
 
 const storage = multer.diskStorage({
@@ -15,7 +16,7 @@ const upload = multer({
   dest: "public/assets/img",
 });
 
-export const loadApiEndpoints = (app: Application): void => {
+export const loadApiEndpoints = (app: Application, pool: Pool): void => {
   app.get("/movies", (req: Request, res: Response) => {
     pool.query("SELECT * FROM movies", (err, result) => {
       if (err) throw err;
@@ -24,7 +25,7 @@ export const loadApiEndpoints = (app: Application): void => {
   });
 
   app.post(
-    "/movies",
+    "/movie",
     upload.single("image"),
     [
       body("title", "Empty").isLength({ min: 1 }),

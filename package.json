@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ./dist/src/server.js",
+    "start": "node dist/src/server.js",
+    "prod": "tsc; NODE_ENV=production node dist/src/server.js",
     "dev": "ts-node-dev ./src/server.ts",
     "build": "tsc",
     "test": "jest --verbose",
