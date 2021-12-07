@@ -3,8 +3,6 @@ import { body, validationResult } from "express-validator";
 import multer from "multer";
 import { Pool } from "mysql";
 
-import movie from "../interfaces/movie.interface";
-
 const storage = multer.diskStorage({
   destination: "public/assets/img",
   filename: (req, file, cb) => {
@@ -19,7 +17,7 @@ const upload = multer({
 
 export const loadApiEndpoints = (app: Application, pool: Pool): void => {
   app.get("/movies", (req: Request, res: Response) => {
-    pool.query("SELECT * FROM movies", (err, result) => {
+    pool.query("SELECT * FROM movies ORDER BY id DESC", (err, result) => {
       if (err) throw err;
       return res.status(200).json(result);
     });
@@ -32,6 +30,7 @@ export const loadApiEndpoints = (app: Application, pool: Pool): void => {
       body("title", "Empty").isLength({ min: 1 }),
       body("description", "Min 30 Characters").isLength({ min: 30 }),
       body("trailerLink", "Not is a URL").isURL(),
+      body("rating", "Empty").isLength({ min: 1 }),
       body("premiere", "Not is a Date").isDate(),
     ],
     (req: Request, res: Response) => {
@@ -39,11 +38,12 @@ export const loadApiEndpoints = (app: Application, pool: Pool): void => {
       if (!errors.isEmpty()) return res.status(400).json(errors);
       const img = req.file?.path.slice(6) || "/assets/err/no-image.png";
 
-      const movie: movie = {
+      const movie = {
         title: req.body.title,
         description: req.body.description,
         trailerLink: req.body.trailerLink,
         premiere: req.body.premiere,
+        rating: req.body.rating,
         img,
       };
 
@@ -75,7 +75,7 @@ export const loadApiEndpoints = (app: Application, pool: Pool): void => {
   });
 
   app.get("/actors", (req: Request, res: Response) => {
-    pool.query("SELECT * FROM actors", (err, result) => {
+    pool.query("SELECT * FROM actors ORDER BY id DESC", (err, result) => {
       if (err) throw err;
       return res.status(200).json(result);
     });

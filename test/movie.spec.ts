@@ -8,6 +8,7 @@ const movie = {
     "Habia un oso de color dorado que le gustaba comer sushi e ir a la playa",
   trailerLink: "https://youtube.com/test",
   premiere: "2008-01-25",
+  rating: 1,
 };
 describe("Test Movies API, /movies and /movie/:id", () => {
   describe("GET /movies", () => {
