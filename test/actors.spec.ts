@@ -56,10 +56,6 @@ describe("Test Actors API, /actors and /actor/:id", () => {
         actor.name = "";
         return request(app).post("/actor").send(actor).expect(400);
       });
-      it("should no empty lastname", () => {
-        actor.lastname = "";
-        return request(app).post("/actor").send(actor).expect(400);
-      });
       it("should no empty biography", () => {
         actor.biography = "";
         return request(app).post("/actor").send(actor).expect(400);

@@ -8,7 +8,8 @@ import movie from "../interfaces/movie.interface";
 const storage = multer.diskStorage({
   destination: "public/assets/img",
   filename: (req, file, cb) => {
-    cb(null, file.originalname);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + ".jpg");
   },
 });
 const upload = multer({
@@ -36,13 +37,14 @@ export const loadApiEndpoints = (app: Application, pool: Pool): void => {
     (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.status(400).json(errors);
+      const img = req.file?.path.slice(6) || "/assets/err/no-image.png";
 
       const movie: movie = {
         title: req.body.title,
         description: req.body.description,
         trailerLink: req.body.trailerLink,
         premiere: req.body.premiere,
-        img: req.file?.path || "no-image",
+        img,
       };
 
       pool.query(`INSERT INTO movies SET ?`, [movie], (err, result) => {
@@ -54,13 +56,15 @@ export const loadApiEndpoints = (app: Application, pool: Pool): void => {
 
   app.get("/movie/:id", (req: Request, res: Response) => {
     const movie = req.params.id;
-    pool.query(`SELECT * FROM movies WHERE id=${movie}`, (err, result) => {
+    if (!movie) res.status(400).json({ err: "no-id" });
+    pool.query(`SELECT * FROM movies WHERE id="${movie}"`, (err, result) => {
       if (err) throw err;
       if (result.length === 0)
         return res.status(404).json({ error: "Not Exist" });
 
       pool.query(
-        `Select actorsid, interpretation FROM casts where moviesid = ${movie}`,
+        `SELECT * FROM casts INNER JOIN actors 
+        ON actors.id=casts.actorsid && casts.moviesid="${movie}"`,
         (err, actors) => {
           if (err) throw err;
           result[0].cast = actors;
@@ -79,13 +83,16 @@ export const loadApiEndpoints = (app: Application, pool: Pool): void => {
 
   app.get("/actor/:id", (req: Request, res: Response) => {
     const actor = req.params.id;
-    pool.query(`SELECT * FROM actors WHERE id=${actor}`, (err, result) => {
+    if (!actor) res.status(400).json({ err: "no-id" });
+    pool.query(`SELECT * FROM actors WHERE id="${actor}"`, (err, result) => {
       if (err) throw err;
       if (result.length === 0)
         return res.status(404).json({ error: "Not Exist" });
 
       pool.query(
-        `Select moviesid, interpretation FROM casts where actorsid = ${actor}`,
+        `SELECT movies.id, movies.title, movies.img, casts.interpretation 
+        FROM casts INNER JOIN movies 
+        ON movies.id=casts.moviesid && casts.actorsid="${actor}"`,
         (err, movies) => {
           if (err) throw err;
           result[0].interpretations = movies;
@@ -100,7 +107,6 @@ export const loadApiEndpoints = (app: Application, pool: Pool): void => {
     upload.single("image"),
     [
       body("name", "Min 2 Characters,max30").isLength({ min: 2, max: 30 }),
-      body("lastname", "Min 2 Characters,max30").isLength({ min: 2, max: 30 }),
       body("biography", "Min 30 Max 500").isLength({ min: 30, max: 500 }),
       body("born", "Not is a Date").isDate(),
       body("place", "Min 2 Characters, max 50").isLength({ min: 2, max: 50 }),
@@ -108,15 +114,14 @@ export const loadApiEndpoints = (app: Application, pool: Pool): void => {
     (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.status(400).json(errors);
-
+      const img = req.file?.path.slice(6) || "/assets/err/no-image.png";
       const actor = {
         name: req.body.name,
-        lastname: req.body.lastname,
         biography: req.body.biography,
         born: req.body.born,
         death: req.body.death,
         place: req.body.place,
-        img: req.file?.path || "no-image",
+        img,
       };
 
       pool.query(`INSERT INTO actors SET ?`, [actor], (err, result) => {
