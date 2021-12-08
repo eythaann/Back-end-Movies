@@ -1,9 +1,11 @@
 import { createPool, Pool } from "mysql";
 import { dev, prod } from "./config/database";
 
+//Select the Database if is Prod or Dev mode
 const env = process.env.NODE_ENV || "development";
 const pool = env === "production" ? createPool(prod) : createPool(dev);
 
+//Handle Errors of the DB conection
 pool.getConnection((err, connection) => {
   if (err) {
     if (err.code === "PROTOCOL_CONNECTION_LOST") {

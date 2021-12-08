@@ -11,7 +11,7 @@ const app = express();
 app.set("port", process.env.PORT || 4000);
 app.set("env", process.env.NODE_ENV || "development");
 
-//middlewares
+//Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
@@ -19,6 +19,9 @@ app.use(
   express.static(path.join(__dirname, "../public"), { maxAge: 31557600000 })
 );
 
-loadApiEndpoints(app, pool);
+//Routes
+app.use("/api/v1", loadApiEndpoints(pool));
+
+//Build de Front-end React
 
 export { app, pool };
