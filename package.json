@@ -4,12 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/server.js",
+    "start": "tsc; node dist/server.js",
     "prod": "NODE_ENV=production node dist/server.js",
     "dev": "ts-node-dev ./src/server.ts",
     "build": "tsc",
     "test": "jest --verbose",
     "prepare": "husky install"
+  },
+  "engines": {
+    "node": "^16"
   },
   "keywords": [],
   "author": "",
