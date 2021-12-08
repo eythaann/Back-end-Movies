@@ -2,6 +2,7 @@ import { Application, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
 import multer from "multer";
 import { Pool } from "mysql";
+import { isDate } from "util/types";
 
 const storage = multer.diskStorage({
   destination: "public/assets/img",
@@ -115,11 +116,15 @@ export const loadApiEndpoints = (app: Application, pool: Pool): void => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.status(400).json(errors);
       const img = req.file?.path.slice(6) || "/assets/err/no-image.png";
+
+      let death = null;
+      if (isDate(req.body.death)) death = req.body.death;
+
       const actor = {
         name: req.body.name,
         biography: req.body.biography,
         born: req.body.born,
-        death: req.body.death,
+        death,
         place: req.body.place,
         img,
       };
@@ -127,6 +132,47 @@ export const loadApiEndpoints = (app: Application, pool: Pool): void => {
       pool.query(`INSERT INTO actors SET ?`, [actor], (err, result) => {
         if (err) throw err;
         return res.status(201).json({ id: result.insertId });
+      });
+    }
+  );
+
+  app.delete("/actor/:id", (req: Request, res: Response) => {
+    pool.query(`DELETE FROM casts WHERE actorsid="${req.params.id}"`, (err) => {
+      if (err) throw err;
+      pool.query(`DELETE FROM actors WHERE id="${req.params.id}"`, (err) => {
+        if (err) throw err;
+        return res.status(202).json({ done: "done" });
+      });
+    });
+  });
+
+  app.delete("/movie/:id", (req, res) => {
+    pool.query(`DELETE FROM casts WHERE moviesid="${req.params.id}"`, (err) => {
+      if (err) throw err;
+      pool.query(`DELETE FROM movies WHERE id="${req.params.id}"`, (err) => {
+        if (err) throw err;
+        return res.status(202).json({ done: "done" });
+      });
+    });
+  });
+
+  app.post(
+    "/cast",
+    [
+      body("movieId", "movieId empty").isLength({ min: 1 }),
+      body("actorId", "movieId empty").isLength({ min: 1 }),
+      body("interpretation", "movieId empty").isLength({ min: 1 }),
+    ],
+    (req: Request, res: Response) => {
+      const cast = {
+        actorsid: req.body.actorId,
+        moviesid: req.body.movieId,
+        interpretation: req.body.interpretation,
+      };
+
+      pool.query(`INSERT INTO casts SET ?`, [cast], (err) => {
+        if (err) throw err;
+        return res.status(201).json({ done: "done" });
       });
     }
   );
