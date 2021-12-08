@@ -1,19 +1,18 @@
 # Movie-Rating-App
 
-Aplicacion de rating de peliculas con el Stack MERN: mysql, express, react, nodejs y Typescript.
+App of Movie Rating in typeScript and Node with Express.
 
-#### Antes de ejecutar cualquiera de los siguientes apartados no olvidemos ejecutar `npm install`
+## Running in DEV mode
 
-## Produccion
+Just need to clone this repo, and later run `npm install`. later of this you can run `npm run dev` for run the app server in Development Mode.
 
-Para crear la aplicacion para produccion correremos el siguiente comando en la consola: `npm run build` para compilas la app
-de typescript a javascript, luego ejecutaremos nuestro servidor con `npm start`
+## Running in PROD mode
 
-## Desarrollo
-
-Para el entorno de desarrollo puede ejecutar `npm run dev` con este se ejecutara un servidor con Ts que nos permitira
-agilisar el proceso de reiniciar el servidor mientras desarrollamos.
+For this you need run `npm install`, later `npm run build` and last `npm run prod`.
+<b>Remember</b> that first you need to <b>copy</b> the files of the disk folder of the Front-End Build
+<br/>
+For Default the Repo have the last Build of the Front-End incluide, you don`t need clone the Front if you don't want
 
 ### Testing
 
-Para los test se usan las librerias de Jest con SuperTest, para ejecutar los test puedes ejecutar `npm test`
+You can run the <b>Tests</b> with `npm test`

@@ -23,5 +23,10 @@ app.use(
 app.use("/api/v1", loadApiEndpoints(pool));
 
 //Build de Front-end React
+//Copy and Paste the Content of the build Folder
+//building by App from React Repository in the Public Folder
+app.use("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
 
 export { app, pool };
