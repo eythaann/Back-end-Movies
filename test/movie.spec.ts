@@ -5,7 +5,7 @@ import movie from "../src/interfaces/movie.interface";
 const api = "/api/v1";
 
 let movie = {
-  title: "El oso Dorado",
+  title: "El oso Dorado 5000",
   description:
     "Habia un oso de color dorado que le gustaba comer sushi e ir a la playa",
   trailerLink: "https://youtube.com/test",
@@ -53,14 +53,17 @@ describe("Test Movies API, /movies and /movie/:id", () => {
         .expect((res) => expect(res.body).toEqual({ error: "Not Exist" }));
     });
   });
-
+  let postId: any = null;
   describe("POST /movie", () => {
     it("should response id: number ", () => {
       return request(app)
         .post(api + "/movie")
         .send(movie)
         .expect(201)
-        .expect((res) => expect(typeof res.body.id).toBe("number"));
+        .expect((res) => {
+          postId = res.body.id;
+          return expect(typeof res.body.id).toBe("number");
+        });
     });
     describe("should validators works", () => {
       it("should no empty title", () => {
@@ -110,6 +113,37 @@ describe("Test Movies API, /movies and /movie/:id", () => {
           .send(movie)
           .expect(400);
       });
+      movie = cache;
+    });
+  });
+
+  describe("PUT /movie/:id", () => {
+    const movie2 = {
+      title: "El oso Dorado 3000",
+      description:
+        "Habia un oso de color dorado que le gudsadasstaba comer sushi e ir a la playa",
+      trailerLink: "https://youtube.com/testdsad",
+      premiere: "2001-02-26",
+      gener: "Terror",
+      duration: "110",
+      rating: 3,
+    };
+    it("should {done: done} ", () => {
+      return request(app)
+        .put(api + "/movie/" + postId)
+        .send(movie2)
+        .expect(201)
+        .expect((res) => expect(res.body).toEqual({ done: "done" }));
+    });
+  });
+
+  describe("DELETE /movie/:id", () => {
+    it("should {done: done}", () => {
+      return request(app)
+        .delete(api + "/movie/" + postId)
+        .send()
+        .expect(202)
+        .expect((res) => expect(res.body).toEqual({ done: "done" }));
     });
   });
 });

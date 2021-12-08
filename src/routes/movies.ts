@@ -21,31 +21,40 @@ export const MoviesApi = (app: Application, pool: Pool) => {
 
   //Get All movies in the DB
   app.get("/movies", (req: Request, res: Response) => {
-    pool.query("SELECT * FROM movies ORDER BY id DESC", (err, result) => {
-      if (err) throw err;
-      return res.status(200).json(result);
-    });
+    try {
+      pool.query("SELECT * FROM movies ORDER BY id DESC", (err, result) => {
+        if (err) throw err;
+        return res.status(200).json(result);
+      });
+    } catch (err) {
+      console.log(err);
+    }
   });
 
   //Get just One Movie
   app.get("/movie/:id", (req: Request, res: Response) => {
     const movie = req.params.id;
     if (!movie) res.status(400).json({ err: "no-id" });
-    pool.query(`SELECT * FROM movies WHERE id="${movie}"`, (err, result) => {
-      if (err) throw err;
-      if (result.length === 0)
-        return res.status(404).json({ error: "Not Exist" });
 
-      pool.query(
-        `SELECT * FROM casts INNER JOIN actors 
-            ON actors.id=casts.actorsid && casts.moviesid="${movie}"`,
-        (err, actors) => {
-          if (err) throw err;
-          result[0].cast = actors;
-          return res.status(200).json(result[0]);
-        }
-      );
-    });
+    try {
+      pool.query(`SELECT * FROM movies WHERE id="${movie}"`, (err, result) => {
+        if (err) throw err;
+        if (result.length === 0)
+          return res.status(404).json({ error: "Not Exist" });
+
+        pool.query(
+          `SELECT * FROM casts INNER JOIN actors 
+              ON actors.id=casts.actorsid && casts.moviesid="${movie}"`,
+          (err, actors) => {
+            if (err) throw err;
+            result[0].cast = actors;
+            return res.status(200).json(result[0]);
+          }
+        );
+      });
+    } catch (err) {
+      console.log(err);
+    }
   });
 
   //Add a new Movie to the DB
@@ -77,10 +86,25 @@ export const MoviesApi = (app: Application, pool: Pool) => {
         img,
       };
 
-      pool.query(`INSERT INTO movies SET ?`, [movie], (err, result) => {
-        if (err) throw err;
-        return res.status(201).json({ id: result.insertId });
-      });
+      try {
+        pool.query(
+          `SELECT * FROM movies WHERE title="${movie.title}"`,
+          (err, result) => {
+            if (err) throw err;
+            if (result.length > 0)
+              return res
+                .status(202)
+                .json({ alert: "Already Exist a Movie With This Title" });
+
+            pool.query(`INSERT INTO movies SET ?`, [movie], (err, result) => {
+              if (err) throw err;
+              return res.status(201).json({ id: result.insertId });
+            });
+          }
+        );
+      } catch (err) {
+        console.log(err);
+      }
     }
   );
 
@@ -114,25 +138,39 @@ export const MoviesApi = (app: Application, pool: Pool) => {
       const img = req.file?.path.slice(6);
       if (img) movie.img = img;
 
-      pool.query(
-        `UPDATE movies SET ? WHERE movies.id = "${req.params.id}"`,
-        [movie],
-        (err, result) => {
-          if (err) throw err;
-          return res.status(201).json({ done: "done" });
-        }
-      );
+      try {
+        pool.query(
+          `UPDATE movies SET ? WHERE movies.id = "${req.params.id}"`,
+          [movie],
+          (err, result) => {
+            if (err) throw err;
+            return res.status(201).json({ done: "done" });
+          }
+        );
+      } catch (err) {
+        console.log(err);
+      }
     }
   );
 
   //Delete a Movie and All its References
   app.delete("/movie/:id", (req, res) => {
-    pool.query(`DELETE FROM casts WHERE moviesid="${req.params.id}"`, (err) => {
-      if (err) throw err;
-      pool.query(`DELETE FROM movies WHERE id="${req.params.id}"`, (err) => {
-        if (err) throw err;
-        return res.status(202).json({ done: "done" });
-      });
-    });
+    try {
+      pool.query(
+        `DELETE FROM casts WHERE moviesid="${req.params.id}"`,
+        (err) => {
+          if (err) throw err;
+          pool.query(
+            `DELETE FROM movies WHERE id="${req.params.id}"`,
+            (err) => {
+              if (err) throw err;
+              return res.status(202).json({ done: "done" });
+            }
+          );
+        }
+      );
+    } catch (err) {
+      console.log(err);
+    }
   });
 };
