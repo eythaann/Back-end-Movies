@@ -8,8 +8,8 @@
     "prod": "NODE_ENV=production node dist/server.js",
     "dev": "ts-node-dev ./src/server.ts",
     "build": "tsc",
-    "test": "jest --verbose",
-    "prepare": "husky install"
+    "test": "jest --verbose"
+    
   },
   "engines": {
     "node": "^16"
