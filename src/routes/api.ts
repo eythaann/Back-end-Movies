@@ -176,4 +176,76 @@ export const loadApiEndpoints = (app: Application, pool: Pool): void => {
       });
     }
   );
+
+  app.put(
+    "/movie/:id",
+    upload.single("image"),
+    [
+      body("title", "Empty").isLength({ min: 1 }),
+      body("description", "Min 30 Characters").isLength({ min: 30 }),
+      body("trailerLink", "Not is a URL").isURL(),
+      body("rating", "Empty").isLength({ min: 1 }),
+      body("premiere", "Not is a Date").isDate(),
+    ],
+    (req: Request, res: Response) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.status(400).json(errors);
+      const img = req.file?.path.slice(6) || "/assets/err/no-image.png";
+
+      const movie = {
+        title: req.body.title,
+        description: req.body.description,
+        trailerLink: req.body.trailerLink,
+        premiere: req.body.premiere,
+        rating: req.body.rating,
+        img,
+      };
+
+      pool.query(
+        `UPDATE movies SET ? WHERE movies.id = "${req.params.id}"`,
+        [movie],
+        (err, result) => {
+          if (err) throw err;
+          return res.status(201).json({ done: "done" });
+        }
+      );
+    }
+  );
+
+  app.put(
+    "/actor/:id",
+    upload.single("image"),
+    [
+      body("name", "Min 2 Characters,max30").isLength({ min: 2, max: 30 }),
+      body("biography", "Min 30 Max 500").isLength({ min: 30, max: 500 }),
+      body("born", "Not is a Date").isDate(),
+      body("place", "Min 2 Characters, max 50").isLength({ min: 2, max: 50 }),
+    ],
+    (req: Request, res: Response) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.status(400).json(errors);
+      const img = req.file?.path.slice(6) || "/assets/err/no-image.png";
+
+      let death = null;
+      if (isDate(req.body.death)) death = req.body.death;
+
+      const actor = {
+        name: req.body.name,
+        biography: req.body.biography,
+        born: req.body.born,
+        death,
+        place: req.body.place,
+        img,
+      };
+
+      pool.query(
+        `UPDATE actors SET ? WHERE actors.id = "${req.params.id}"`,
+        [actor],
+        (err, result) => {
+          if (err) throw err;
+          return res.status(201).json({ done: "done" });
+        }
+      );
+    }
+  );
 };
